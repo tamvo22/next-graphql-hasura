@@ -1,0 +1,12 @@
+overwrite: true
+schema: 'https://nextauth-jotai.hasura.app/v1/graphql'
+documents: 'src/**/*.graphql'
+generates:
+  src/generated/graphql.tsx:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-query'
+  ./graphql.schema.json:
+    plugins:
+      - 'introspection'

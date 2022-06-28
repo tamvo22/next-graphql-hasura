@@ -1,0 +1,166 @@
+# { // {} returns all
+#  "where": {}
+#}
+subscription MySubscription($where: customers_bool_exp) {
+  customers(where: $where) {
+    id
+    first_name
+    middle_name
+    last_name
+    email
+    phone
+    street
+    city
+    state
+    zip
+    created_at
+    updated_at
+  }
+}
+
+#{
+#  "id": ""
+#}
+query GetCustomerByID($id: uuid!) {
+  customers_by_pk(id: $id) {
+    id
+    first_name
+    middle_name
+    last_name
+    email
+    phone
+    street
+    city
+    state
+    zip
+    created_at
+    updated_at
+  }
+}
+
+#{ // {} returns all
+#  "where": {}
+#}
+query GetCustomerWhere($where: customers_bool_exp!) {
+  customers(where: $where) {
+    id
+    first_name
+    middle_name
+    last_name
+    email
+    phone
+    street
+    city
+    state
+    zip
+    created_at
+    updated_at
+  }
+}
+
+#{
+#  "order_by": {
+#    "first_name": "asc"
+#  },
+#  "offset": 10,
+#  "limit": 10
+#}
+query GetCustomersPagination($order_by: [customers_order_by!], $offset: Int!, $limit: Int!) {
+  customers_aggregate {
+    aggregate {
+      totalCount: count
+    }
+  }
+  customers(order_by: $order_by, offset: $offset, limit: $limit) {
+    id
+    first_name
+    middle_name
+    last_name
+    email
+    phone
+    street
+    city
+    state
+    zip
+    created_at
+    updated_at
+  }
+}
+
+#{
+#  "object": {
+#    "auth_id": "",
+#    "first_name": "",
+#    "middle_name": "",
+#    "last_name": "",
+#    "email": ""
+#  }
+#}
+mutation AddCustomer($object: customers_insert_input!) {
+  insert_customers_one(object: $object) {
+    id
+    first_name
+    middle_name
+    last_name
+    email
+    phone
+    street
+    city
+    state
+    zip
+    created_at
+  }
+}
+
+# single object update
+#{
+#  "pk": { "id": ""},
+#  "update": {
+#    "first_name": "",
+#    "last_name": ""
+#  }
+#}
+mutation UpdateCustomerById($pk: customers_pk_columns_input!, $update: customers_set_input!) {
+  update_customers_by_pk(pk_columns: $pk, _set: $update) {
+    id
+    updated_at
+  }
+}
+
+#{
+#  "where": {"email": {"_eq": "email"}},
+#  "set": {
+#    "first_name": "",
+#    "last_name": ""
+#  }
+#}
+mutation UpdateCustomerWhere($where: customers_bool_exp!, $set: customers_set_input) {
+  update_customers(where: $where, _set: $set) {
+    affected_rows
+    returning {
+      id
+      updated_at
+    }
+  }
+}
+
+#{
+#  "id": ""
+#}
+mutation DeleteCustomerById($id: uuid!) {
+  delete_customers_by_pk(id: $id) {
+    id
+  }
+}
+
+#{ // delete record where id is in list of array
+#  "where": { id: { _in: [1,3,5] } }
+#}
+mutation DeleteCustomerWhere($where: customers_bool_exp!) {
+  delete_customers(where: $where) {
+    affected_rows
+    returning {
+      id
+    }
+  }
+}
