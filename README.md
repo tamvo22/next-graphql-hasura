@@ -10,7 +10,7 @@ This project app will be an extension of our previous [NextAuth Authentication +
 
 [Completed App](https://hasuragraphql.vercel.app/)
 
-![Dashboard Todo - Heroku/Hasura](/public/images/todo.jpg)
+![Dashboard Todo - Heroku/Hasura](public/images/todos.jpg)
 
 ## Objective
 
@@ -36,7 +36,7 @@ To achive our goal, we will need to do the following:
 
 - Implement our custom GraphQL API fetcher function
 
-- Setup GraphQL .env and Codegen configuration
+- Setup GraphQL environment variable, .env, and Codegen configuration
 
 - Implement Hasura real-time subscription
 
@@ -446,7 +446,7 @@ callbacks: {
 
 Since we are using React-Query and Jotai to help us manage our client/server states, we will create our own useSession hook. Therefore, we will exclude NextAuth's useSession hook and SessionProvider usage from our app. Instead, we'll integrate an all-in-one Jotia/React-Query method called [**atomWithQuery**](https://jotai.org/docs/integrations/query) to streamline the entire session fetching process. In our layout component, we will call this useSession to keep track of the client's session. The reason for choosing the client session fetching approach in our example is due to unstable future changes regarding NextAuth SSR [**unstable_getServerSession**](https://github.com/nextauthjs/next-auth/issues/4741) implementation.
 
-The custom useSession will allow immediate access to the user's session object from anywhere in our app by calling the SessionAtomRef atom. We will also redirect invalid sessions to relogin as well as check/renew our accessToken every 30 minutes by calling _"refetchInterval"_. This way, the user will never get a timeout of Hasura API access due to an expired accessToken while their session exists. At this point, we should be able to log into our dashboard again.
+The custom useSession will allow immediate access to the user's session object from anywhere in our app by calling the **SessionAtomRef** atom. We will also redirect invalid sessions to relogin as well as check/renew our accessToken every 30 minutes by calling _"refetchInterval"_. This way, the user will never get a timeout of Hasura API access due to an expired accessToken while their session exists. At this point, we should be able to log into our dashboard again.
 
 [useSession](src/_utils/auth/useSession.ts)
 
@@ -501,7 +501,7 @@ export const useSession = () => {
 
 ### Implement our custom GraphQL API fetcher function
 
-It is time to setup Codegen for our Todos data updates. We will need to implement a custom fetcher for Codegen and the React-Query plugin to work correctly. Codegen has not yet exposed the React-Query custom fetcher **options** properties for us to provide the authorization header for our data fetching at the time of this example guide. However, because we can use SessionAtomRef from anywhere in our app, we only need to use [Codegen custom hook Fetcher](https://the-guild.dev/graphql/codegen/plugins/typescript/typescript-react-query#using-custom-fetcher) example for us to call our SessionAtomRef atom to get accessToken and user role for the authorization header.
+It is time to setup Codegen for our Todos data updates. We will need to implement a custom fetcher for Codegen and the React-Query plugin to work correctly. Codegen has not yet exposed the React-Query custom fetcher **options** properties for us to provide the authorization header for our data fetching at the time of this example guide. However, because we can access SessionAtomRef from anywhere in our app, we only need to configure [Codegen custom hook Fetcher](https://the-guild.dev/graphql/codegen/plugins/typescript/typescript-react-query#using-custom-fetcher) example to use hooks so that we can call our SessionAtomRef atom to get accessToken and user role for the authorization header.
 
 [Codegen custom fetcher](src/_utils/hasura/generated/useFetcher.ts)
 
@@ -532,9 +532,9 @@ export const useFetcher = <TData, TVariables>(query: string, options?: RequestIn
 };
 ```
 
-### Setup GraphQL .env and Codegen configuration
+### Setup GraphQL environment variable, .env, and Codegen configuration
 
-We'll need to add a Hasura server environment variable called **JWT_SECRET={ "type": "HS256", "key": "same as your HASURA_JWT_SECRET secret" }** during this phase. This key secret needs to match the HASURA_JWT_SECRET that we use to encrypt our accessToken JWT token or else Hasura API endpoint from returning the error: **JWT: JWSError JWSInvalidSignature**. We will need to provide the rest of the Hasura API environment variables as well. You can refer to [Next.JS environment variable](https://nextjs.org/docs/basic-features/environment-variables#default-environment-variables) for additional information on how to configure your .env file. It is recommended that you can rename your .env file to the .env.local so that your key secret will not get expose to the client.
+We'll need to add a Hasura server environment variable called **JWT_SECRET={ "type": "HS256", "key": "same as your HASURA_JWT_SECRET secret" }** during this phase. This key secret needs to match the **HASURA_JWT_SECRET** that we use to encrypt our accessToken JWT token or else Hasura API endpoint from returning the error: **JWT: JWSError JWSInvalidSignature**. We will need to provide the rest of the Hasura API environment variables as well. You can refer to [Next.JS environment variable](https://nextjs.org/docs/basic-features/environment-variables#default-environment-variables) for additional information on how to configure your .env file. It is recommended that you can rename your .env file to the .env.local so that your key secret will not get expose to the client.
 
 [.env.local](.env)
 
@@ -604,7 +604,7 @@ In order to execute codegen.ts with our Hasura environment variables defined in 
 
 Now that we have our hook routines for the Codegen API, we can begin updating our data. But before we do so, we're going to implement a subscription hook method so that we may leverage both Hasura regular updates and real-time updates.
 
-We'll be using WebSocket and React-Query to implement our real-time subscription method. Thanks to [TkDodo's Blog](https://tkdodo.eu/blog/using-web-sockets-with-react-query) and [MotleyDev](https://github.com/motleydev/react-query-with-graphql-demo) for providing useful resources for getting WebSockets to work with React-Query, which helped save us a lot of time. We must provide our session atom together with the accessToken and role to the WebSocket subscription for Hasura authorization in order to successfully establish a subscription connection. We'll subscribe to the Todos query, which will provide us updates in real time anytime anything changes. The subscribed data and status will be return to our useTodos() hook function. 
+We'll be using WebSocket and React-Query to implement our real-time subscription method. Thanks to [TkDodo's Blog](https://tkdodo.eu/blog/using-web-sockets-with-react-query) and [MotleyDev](https://github.com/motleydev/react-query-with-graphql-demo) for providing useful resources for getting WebSockets to work with React-Query, which helped save us a lot of time. We must provide our session atom together with the accessToken and role to the WebSocket subscription for Hasura authorization in order to successfully establish a subscription connection. We'll subscribe to the Todos query, which will provide us updates in real time anytime data changes. The subscribed data and status will be return to our useTodos() hook function. 
 
 [useSubscription](src/_utils/hasura/generated/useSubscription.ts)
 
@@ -686,7 +686,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
 
 ### Compile useTodos hook function
 
-Now that we've created our useSubscription hook function, let's combine it with the Codegen hook routines to supply us with both regular and real-time data updates for our useTodos hook function. The **subscribe** props variable will determine if the function will use regular or real-time updates. For regular updates, Codegen provides us with mutation hooks for add, update, and delete that we can easily use to perform our mutation update requests. We will be using Codegen generated hooks: **useGetTodosWhereQuery**, **useAddTodoMutation**, **useUpdateTodosWhereMutation**, and **useDeleteTodosByIdMutation**. Since Codegen generated it's own queryKey, we would have to use **useGetTodosWhereQuery.getKey(variables)** to get the same queryKey for all our hooks to update the same queryKey. 
+Now that we've created our useSubscription hook function, let's combine it with the Codegen hook routines to supply us with both regular and real-time data updates for our useTodos hook function. The **subscribe** props variable will determine if the function will use regular or real-time updates. For regular updates, Codegen provides us with mutation hooks for add, update, and delete that we can easily use to perform our mutation update requests. We will be using Codegen generated hooks: **useGetTodosWhereQuery**, **useAddTodoMutation**, **useUpdateTodosWhereMutation**, and **useDeleteTodosByIdMutation**. Since Codegen generated it's own queryKey, we would have to use **useGetTodosWhereQuery.getKey(variables)** to get the same queryKey for all the hook calls to update the same queryKey. 
 
 By default Hasura live query subscription updates are delivered to clients every **1** sec. In order to speed up the updates, we can modify the Hasrua environment variable **HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL** to 0 milliseconds for immediate updates.
 
