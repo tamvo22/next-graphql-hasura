@@ -83,8 +83,6 @@ export default NextAuth({
         return token;
       }
 
-      console.log('token', token, user);
-
       // generate Hasura claims on first login
       if (user) {
         token.user = { ...user, role: user?.role ?? 'user', ...hasuraClaims(user as User) };
@@ -94,16 +92,12 @@ export default NextAuth({
       const { accessToken, tokenExpires } = await EncryptTokens(token.user, process.env.HASURA_JWT_SECRET!);
       token = { ...token, accessToken, tokenExpires };
 
-      console.log('token', token, accessToken, tokenExpires);
-
       return token;
     },
     async session({ session, token }) {
       session.user = token.user;
       session.accessToken = token.accessToken;
       session.tokenExpires = token.tokenExpires;
-
-      console.log('session', session);
 
       return session;
     },
