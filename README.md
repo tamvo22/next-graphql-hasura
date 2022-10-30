@@ -8,7 +8,7 @@
 
 This project app will be an extension of our previous [NextAuth Authentication + Firebase/Firestore](https://github.com/tamvo22/next-firebase-auth) app. It is recommended to follow the app example to setup your Google Cloud Firebase/Firbase Admin API, Github and Google Provider information.
 
-[Completed App](https://hasuragraphql.vercel.app/)
+[Live App Example - https://hasuragraphql.vercel.app](https://hasuragraphql.vercel.app)
 
 ![Dashboard Todo - Heroku/Hasura](public/images/todos.jpg)
 
