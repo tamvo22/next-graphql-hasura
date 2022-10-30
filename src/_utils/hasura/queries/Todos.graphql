@@ -1,0 +1,125 @@
+# get todos with query where
+#{
+#  "where": {}
+#}
+subscription getTodoSubscribe($where: todos_bool_exp!) {
+  todos(where: $where, order_by: { id: desc }) {
+    id
+    name
+    completed
+  }
+} 
+
+# get a todos record by the todos id as Int!
+#{
+#  "id": ""
+#}
+query getTodosByID($id: Int!) {
+  todos_by_pk(id: $id) {
+    id
+    name
+    completed
+  }
+}
+
+# get todos with query where
+#{
+#  "where": {}
+#}
+query getTodosWhere($where: todos_bool_exp!) {
+  todos(where: $where, order_by: { id: desc }) {
+    id
+    name
+    completed
+  }
+}
+
+# get todos pagination by set order_by and limit
+#{
+#  "order_by": {
+#    "first_name": "asc"
+#  },
+#  "offset": 10,
+#  "limit": 10
+#}
+query getTodosPagination($order_by: [todos_order_by!], $offset: Int!, $limit: Int!) {
+  todos_aggregate {
+    aggregate {
+      totalCount: count
+    }
+  }
+  todos(order_by: $order_by, offset: $offset, limit: $limit) {
+    id
+    name
+    completed
+  }
+}
+
+# muation add a new todos
+#{
+#  "object": {
+#    "name": "",
+#    "completed": "",
+#  }
+#}
+mutation addTodo($object: todos_insert_input!) {
+  insert_todos_one(object: $object) {
+    id
+    name
+    completed
+  }
+}
+
+# muation update an existing todos
+#{
+#  "pk": { "id": ""},
+#  "update": {
+#    "name": "",
+#    "completed": ""
+#  }
+#}
+mutation updateTodosById($pk: todos_pk_columns_input!, $update: todos_set_input!) {
+  update_todos_by_pk(pk_columns: $pk, _set: $update) {
+    id
+  }
+}
+
+# muation update an existing todos query
+#{
+#  "where": {"id": {"_eq": ""}},
+#  "set": {
+#    "name": "",
+#    "completed": ""
+#  }
+#}
+mutation updateTodosWhere($where: todos_bool_exp!, $set: todos_set_input) {
+  update_todos(where: $where, _set: $set) {
+    affected_rows
+    returning {
+      id
+    }
+  }
+}
+
+# muation delete an existing todos
+#{
+#  "id": ""
+#}
+mutation deleteTodosById($id: Int!) {
+  delete_todos_by_pk(id: $id) {
+    id
+  }
+}
+
+# muation delete an existing todos query
+#{ // delete record where id is in list of array
+#  "where": { "id": { "_in": [1,3,5] } }
+#}
+mutation deleteTodosWhere($where: todos_bool_exp!) {
+  delete_todos(where: $where) {
+    affected_rows
+    returning {
+      id
+    }
+  }
+}
