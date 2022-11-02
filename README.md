@@ -4,6 +4,11 @@
 
 [Heroku Postgres](https://www.heroku.com) database storage with [Hasura GraphQL](https://hasura.io) query API are becoming increasingly popular among cloud services. Heroku currently offers a free hobby account, so we'll take advantage of it while it's still available. In this project example, we will update our previous [Firebase/Firestore](https://github.com/tamvo22/next-firebase-auth) app example by connecting to Hasura and Heroku databases and implementing GraphQL CRUD operations for our Todo List using [GraphQL Codegen](https://www.the-guild.dev/graphql/codegen) to perform real-time data updates.
 
+## Feedback
+
+Please leave a message on my portfolio website. Your comments are always appreciated and aid my quest for knowledge.
+[https://tamvo.vercel.app/](https://tamvo.vercel.app/)
+
 ## Starter project
 
 This project app will be an extension of our previous [NextAuth Authentication + Firebase/Firestore](https://github.com/tamvo22/next-firebase-auth) app. It is recommended to follow the app example to setup your Google Cloud Firebase/Firbase Admin API, Github and Google Provider information.
