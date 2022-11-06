@@ -3,6 +3,7 @@ import { AppProps } from 'next/app';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from '../src/createEmotionCache';
 import { Hydrate, DehydratedState, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useAtomValue } from 'jotai/utils';
 import { queryClientAtom } from 'jotai/query';
 import MuiThemeProvider from '@/com/themes/MuiThemeProvider';
@@ -34,6 +35,7 @@ export default function MyApp(props: Props) {
             <Component {...pageProps} />
           </MuiThemeProvider>
         </Hydrate>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </CacheProvider>
   );

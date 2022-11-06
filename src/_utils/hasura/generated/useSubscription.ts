@@ -21,7 +21,6 @@ const subscribeId = nanoid(32);
  * @example
  */
 export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: string, variables?: TVariables) => {
-  const [data, setData] = useState<any>();
   const [status, setStatus] = useState<'success' | 'loading' | 'error'>('loading');
 
   // get session atom state
@@ -70,8 +69,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
 
             // update our query data when new data is available
             const payload = res.payload;
-            setData(payload);
-            queryClient.invalidateQueries(queryKey);
+            queryClient.setQueriesData(queryKey, payload.data);
           }
         };
 
@@ -92,5 +90,5 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
     subscribe();
   }, [queryClient]);
 
-  return { data, status };
+  return status;
 };

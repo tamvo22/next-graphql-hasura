@@ -12,7 +12,7 @@ const Dashboard = () => {
       <Typography variant="h5" component="h2" align="center">
         Welcome to Admin Dashboard Todo List
       </Typography>
-      <TodoList todos={data!} loading={status === 'success' ? true : false} addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo} />
+      <TodoList todos={data?.todos!} loading={status === 'success' ? true : false} addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo} />
     </Container>
   );
 };

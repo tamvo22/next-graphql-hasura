@@ -616,11 +616,11 @@ We'll be using WebSocket and React-Query to implement our real-time subscription
 ```ts
 // src/_utils/hasura/generated/useSubscription.ts
 export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: string, variables?: TVariables) => {
-  const [data, setData] = useState<any>();
   const [status, setStatus] = useState<'success' | 'loading' | 'error'>('loading');
 
   // get session atom state
   const session = useAtomValue(SessionAtomRef);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const subscribe = async () => {
@@ -664,7 +664,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
 
             // update our query data when new data is available
             const payload = res.payload;
-            setData(payload);
+            queryClient.setQueriesData(queryKey, payload.data);
           }
         };
 
@@ -683,9 +683,9 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
     };
 
     subscribe();
-  }, []);
+  }, [queryClient]);
 
-  return { data, status };
+  return status;
 };
 ```
 
@@ -715,9 +715,21 @@ const useTodos = ({ subscribe = false }: { subscribe?: boolean } = {}) => {
   // get Codegen queryKey
   const queryKey = useGetTodosWhereQuery.getKey(variables);
 
-  // perform subscription or regular Codegen query updates
+  // set queryClient staleTime to Infinity if using subscription else reset to default of 0
+  subscribe ? queryClient.setQueryDefaults(queryKey, { staleTime: Infinity }) : queryClient.setQueryDefaults(queryKey, { staleTime: 0 });
+
+  // get loading status of subscription
+  const subStatus = subscribe && useQuerySubscription(queryKey, queryDocument, variables);
+
+  // perform subscription or regular query updates
   const { data, status } = subscribe
-    ? useQuerySubscription(queryKey, queryDocument, variables)
+    ? useQuery(queryKey, () => [] as Todos[], {
+        enabled: true,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchIntervalInBackground: false,
+      })
     : useGetTodosWhereQuery(variables, {
         enabled: true,
         refetchOnMount: true,
@@ -771,7 +783,7 @@ const useTodos = ({ subscribe = false }: { subscribe?: boolean } = {}) => {
   };
 
   // multiple data properties since both React-Query and Hasura GraphQl returns data
-  return { data: (data as any)?.data.todos, status, addTodo, updateTodo, deleteTodo };
+  return { data: subscribe ? data : (data as any)?.data, status: subscribe ? subStatus : status, addTodo, updateTodo, deleteTodo };
 };
 
 ```
@@ -792,7 +804,7 @@ const Dashboard = () => {
       <Typography variant="h5" component="h2" align="center">
         Welcome to Admin Dashboard Todo List
       </Typography>
-      <TodoList todos={data!} loading={status === 'success' ? true : false} addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo} />
+      <TodoList todos={data?.todos!} loading={status === 'success' ? true : false} addTodo={addTodo} updateTodo={updateTodo} deleteTodo={deleteTodo} />
     </Container>
   );
 };

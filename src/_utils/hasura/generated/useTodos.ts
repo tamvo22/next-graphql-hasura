@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQuerySubscription } from '@/utils/hasura/generated/useSubscription';
 import {
   Todos,
@@ -29,9 +29,21 @@ const useTodos = ({ subscribe = false }: { subscribe?: boolean } = {}) => {
   // get Codegen queryKey
   const queryKey = useGetTodosWhereQuery.getKey(variables);
 
+  // set queryClient staleTime to Infinity if using subscription else reset to default of 0
+  subscribe ? queryClient.setQueryDefaults(queryKey, { staleTime: Infinity }) : queryClient.setQueryDefaults(queryKey, { staleTime: 0 });
+
+  // get loading status of subscription
+  const subStatus = subscribe && useQuerySubscription(queryKey, queryDocument, variables);
+
   // perform subscription or regular query updates
   const { data, status } = subscribe
-    ? useQuerySubscription(queryKey, queryDocument, variables)
+    ? useQuery(queryKey, () => [] as Todos[], {
+        enabled: true,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchIntervalInBackground: false,
+      })
     : useGetTodosWhereQuery(variables, {
         enabled: true,
         refetchOnMount: true,
@@ -85,7 +97,7 @@ const useTodos = ({ subscribe = false }: { subscribe?: boolean } = {}) => {
   };
 
   // multiple data properties since both React-Query and Hasura GraphQl returns data
-  return { data: (data as any)?.data.todos, status, addTodo, updateTodo, deleteTodo };
+  return { data: subscribe ? data : (data as any)?.data, status: subscribe ? subStatus : status, addTodo, updateTodo, deleteTodo };
 };
 
 export default useTodos;
