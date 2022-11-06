@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { QueryKey } from '@tanstack/react-query';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai/utils';
 import { SessionAtomRef } from '@/utils/auth/useSession';
 import { nanoid } from 'nanoid';
@@ -26,6 +26,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
 
   // get session atom state
   const session = useAtomValue(SessionAtomRef);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const subscribe = async () => {
@@ -70,6 +71,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
             // update our query data when new data is available
             const payload = res.payload;
             setData(payload);
+            queryClient.invalidateQueries(queryKey);
           }
         };
 
@@ -88,7 +90,7 @@ export const useQuerySubscription = <TVariables>(queryKey: QueryKey, query: stri
     };
 
     subscribe();
-  }, []);
+  }, [queryClient]);
 
   return { data, status };
 };
