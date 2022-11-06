@@ -242,7 +242,7 @@ query getTodosWhere($where: todos_bool_exp!) {
 
 Since we are migrating from Firebase/Firstore to Hasura database, we'll need to update our NextAuth firestoreAdapter.ts to [hasuraAdapter.ts](src/_utils/auth/hasuraAdapter.ts) to keep track of the user accounts and profiles for the media logins. However, before we can use our Hasura API call functions, we must first implement the server fetcher function listed below. Pease note that this fetcher function will operate on the server, so we will need to supply it with _'X-Hasura-Admin-Secret': process.env.HASURA_ADMIN_SECRET!_ in the header for it to work.
 
-[server fetcher](src/_utils/hasura/server/fetcher.ts)
+[fetcher.ts](src/_utils/hasura/server/fetcher.ts)
 
 ```jsx
 export interface HasuraQuery {
@@ -271,7 +271,7 @@ export async function serverFetcher({ query, variables }: HasuraQuery) {
 
 Once we have our fetcher function, we can write the Hasura API call functions for both the users.ts and accounts.ts. Here, we have to write the API call functions and query statements ourselves. But it will provide us with the basic information we need to perform GraphQL updates. After we set up Codegen later, we will simply need to define the Todos query statements, and Codegen will generate the API call functions for us, saving us a significant amount of time and effort in the long run.
 
-[Accounts queries](src/_utils/hasura/server/accounts.ts)
+[accounts.ts](src/_utils/hasura/server/accounts.ts)
 
 ```jsx
 export const queryGetAccount = async (where: {}): Promise<Account | null> => {
@@ -293,7 +293,7 @@ export const queryGetAccount = async (where: {}): Promise<Account | null> => {
 };
 ```
 
-[Users queries](src/_utils/hasura/server/users.ts)
+[users.ts](src/_utils/hasura/server/users.ts)
 
 ```jsx
 export const getUser = async (id: string): Promise<AdapterUser | null> => {
@@ -324,7 +324,7 @@ export const getUser = async (id: string): Promise<AdapterUser | null> => {
 
 Similar to the previous firestoreAdapter function, we will setup the API calls for the Hasura API call functions. Hence, since we are using the JWT session method, we do not need to implement the Session and verificationToken sections.
 
-[hasuraAdapter](src/_utils/auth/hasuraAdapter.ts)
+[hasuraAdapter.ts](src/_utils/auth/hasuraAdapter.ts)
 
 ```jsx
 export default function HasuraAdapter(): Adapter {
@@ -372,7 +372,7 @@ On the user's first login, we will generate the Hasura claims and the **accessTo
 
 In the Session Callback, we will return the user, accessToken, and tokenExpires along with the session.
 
-[Hasura custom claims](src/_utils/auth/hasuraClaims.ts)
+[hasuraClaims.ts](src/_utils/auth/hasuraClaims.ts)
 
 ```jsx
 // src/_utils/auth/hasuraClaims.ts
@@ -391,7 +391,7 @@ export function hasuraClaims(user: User) {
 }
 ```
 
-[Encrypt token](src/_utils/auth/encryptToken.ts)
+[encryptToken.ts](src/_utils/auth/encryptToken.ts)
 
 ```jsx
 // src/_utils/auth/encryptToken.ts
@@ -411,7 +411,7 @@ export async function EncryptTokens(token: JWTPayload, secret: string) {
 }
 ```
 
-[Nextauth API route](pages/api/auth/%5B...nextauth%5D.ts)
+[`[nextauth].ts`](pages/api/auth/%5B...nextauth%5D.ts)
 
 ```jsx
 // pages/api/auth/[nextauth].ts
@@ -448,7 +448,7 @@ Since we are using React-Query and Jotai to help us manage our client/server sta
 
 The custom useSession will allow immediate access to the user's session object from anywhere in our app by calling the **SessionAtomRef** atom. We will also redirect invalid sessions to relogin as well as check/renew our accessToken every 30 minutes by calling _"refetchInterval"_. This way, the user will never get a timeout of Hasura API access due to an expired accessToken while their session exists. At this point, we should be able to log into our dashboard again.
 
-[useSession](src/_utils/auth/useSession.ts)
+[useSession.ts](src/_utils/auth/useSession.ts)
 
 ```jsx
 // src/_utils/auth/session.ts
@@ -503,7 +503,7 @@ export const useSession = () => {
 
 It is time to setup Codegen for our Todos data updates. We will need to implement a custom fetcher for Codegen and the React-Query plugin to work correctly. Codegen has not yet exposed the React-Query custom fetcher **options** properties for us to provide the authorization header for our data fetching at the time of this example guide. However, because we can access SessionAtomRef from anywhere in our app, we only need to configure [Codegen custom hook Fetcher](https://the-guild.dev/graphql/codegen/plugins/typescript/typescript-react-query#using-custom-fetcher) example to use hooks so that we can call our SessionAtomRef atom to get accessToken and user role for the authorization header.
 
-[Codegen custom fetcher](src/_utils/hasura/generated/useFetcher.ts)
+[useFetcher.ts](src/_utils/hasura/generated/useFetcher.ts)
 
 ```jsx
 // src/_utils/hasura/generated/fetcher.ts
@@ -606,7 +606,7 @@ Now that we have our hook routines for the Codegen API, we can begin updating ou
 
 We'll be using WebSocket and React-Query to implement our real-time subscription method. Thanks to [TkDodo's Blog](https://tkdodo.eu/blog/using-web-sockets-with-react-query) and [MotleyDev](https://github.com/motleydev/react-query-with-graphql-demo) for providing useful resources for getting WebSockets to work with React-Query, which helped save us a lot of time. We must provide our session atom together with the accessToken and role to the WebSocket subscription for Hasura authorization in order to successfully establish a subscription connection. We'll subscribe to the Todos query, which will provide us updates in real time anytime data changes. The subscribed data and status will be return to our useTodos() hook function. 
 
-[useSubscription](src/_utils/hasura/generated/useSubscription.ts)
+[useSubscription.ts](src/_utils/hasura/generated/useSubscription.ts)
 
 ```ts
 // src/_utils/hasura/generated/useSubscription.ts
@@ -690,7 +690,7 @@ Now that we've created our useSubscription hook function, let's combine it with 
 
 By default Hasura live query subscription updates are delivered to clients every **1** sec. In order to speed up the updates, we can modify the Hasrua environment variable **HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL** to 0 milliseconds for immediate updates.
 
-[useTodos module](src/_utils/hasura/generated/useTodos.ts)
+[useTodos.ts](src/_utils/hasura/generated/useTodos.ts)
 
 ```jsx
 // src/_utils/hasura/generated/useTodos.ts

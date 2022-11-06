@@ -1,7 +1,12 @@
 {
-  "name": "nextjs-with-typescript",
-  "version": "5.0.0",
+  "name": "nextjs-hasura-codegen",
+  "version": "1.0.0",
   "private": true,
+  "description": "Next.js & Hasura & GraphQL Codegen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tamvo22/next-graphql-hasura"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
