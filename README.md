@@ -84,15 +84,15 @@ Postgres SQL
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 SET check_function_bodies = false;
 CREATE TABLE users (
-    id TEXT PRIMARY KEY
+    id TEXT PRIMARY KEY NOT NULL UNIQUE,
     name TEXT,
     email TEXT UNIQUE,
     "emailVerified" TIMESTAMP with time zone,
     image TEXT,
-    role TEXT DEFAULT "user"
+    role TEXT DEFAULT user
 );
 CREATE TABLE accounts (
-    id uuid PRIMARY KEY DEFAULT public.gen_random_uuid(),
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     type TEXT NOT NULL,
     provider TEXT NOT NULL,
     "providerAccountId" TEXT NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE accounts (
     FOREIGN KEY ("userId") REFERENCES users(id) ON UPDATE RESTRICT ON DELETE CASCADE
 );
 CREATE TABLE todos (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     name TEXT NOT NULL,
     "completed" BOOLEAN DEFAULT false,
     "userId" TEXT NOT NULL,
@@ -547,7 +547,6 @@ We'll need to add a Hasura server environment variable called **JWT_SECRET={ "ty
 ## Hasura API
 HASURA_ADMIN_SECRET=
 HASURA_JWT_SECRET=
-DATABASE_URL=
 HASURA_API_ENDPOINT=
 
 ```
